@@ -1,6 +1,5 @@
 package org.mustangproject.server.controller;
 
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,7 @@ public class VersionControllerTest {
     @Test
     @DisplayName("Test /notice endpoint")
     public void testNotice() throws Exception {
-        String expectedResponse = "Mustangserver is (c) 2022 by Jochen Stärk (\"usegroup\") and uses the following (unaltered) libraries under Apache License: Spring boot, Mustangproject, Docker, Keycloak, Apache Derby, github.com/phax/phive/, LGPL: Ghost4J http://www.ghost4j.org/, AGPL: Ghostscript 9.27 bundled in Alpine Linux https://github.com/alpinelinux/aports/tree/master/main/ghostscript";
+        String expectedResponse = "REST-Converter is EUPL by \"usegroup\" and uses Spring boot under Apache License and https://github.com/AgID/EeISI-mapper/ under the EUPL";
 
         mockMvc.perform(MockMvcRequestBuilders.get("/mustang/notice")
                         .header("USERNAME", "testuser"))

@@ -29,9 +29,9 @@ public class OpenApiConfig {
         new OpenAPI()
             .info(
                 new Info()
-                    .title("Mustangserver")
+                    .title("REST-Converter")
                     .description(
-                        "Mustangproject e-invoice REST server API\n\n**Contacts:**\n"
+                        "REST-Converter server API\n\n**Contacts:**\n"
                             + "- **Jochen Stärk:** General inquiries - [jstaerk@usegroup.de](mailto:jstaerk@usegroup.de)\n"
                             + "- **Martin Wachtveitl:** Technical support - [martin.wachtveitl@itewa.com](mailto:martin.wachtveitl@itewa.com)")
                     .contact(
@@ -39,13 +39,13 @@ public class OpenApiConfig {
                             .name("Jochen Staerk")
                             .url("http://mustangproject.org/")
                             .email("jstaerk@usegroup.de"))
-                    .version("v1.6.0")
+                    .version("v1.7.0")
                     .license(
-                        new License().name("proprietary").url("http://mustangproject.org/server")))
+                        new License().name("EUPL")))
             .externalDocs(
                 new ExternalDocumentation()
                     .description("Mustangserver Documentation")
-                    .url("https://www.mustangproject.org/files/manual-1.6.0.pdf"));
+                    .url("https://www.mustangproject.org/files/manual-1.7.0.pdf"));
     if ((serverUrl != null) && (!serverUrl.isEmpty())) {
       oa.addServersItem(new Server().url(serverUrl));
     }

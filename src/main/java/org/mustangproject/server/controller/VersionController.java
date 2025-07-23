@@ -35,7 +35,7 @@ public class VersionController {
         logRequestInfo(req);
 
 
-        return "Mustangserver is (c) 2022 by Jochen Stärk (\"usegroup\") and uses the following (unaltered) libraries under Apache License: Spring boot, Mustangproject, Docker, Keycloak, Apache Derby, github.com/phax/phive/, EUPL https://github.com/AgID/EeISI-mapper/";// the idea is to use this value in WebSecurityConfig's hasIpAddress
+        return "REST-Converter is EUPL by \"usegroup\" and uses Spring boot under Apache License and https://github.com/AgID/EeISI-mapper/ under the EUPL";// the idea is to use this value in WebSecurityConfig's hasIpAddress
     }
 
     private void logRequestInfo(HttpServletRequest req) {

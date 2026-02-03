@@ -35,7 +35,7 @@ public class VersionController {
         logRequestInfo(req);
 
 
-        return "REST-Converter is EUPL by \"usegroup\" and uses Spring boot under Apache License and https://github.com/AgID/EeISI-mapper/ under the EUPL";// the idea is to use this value in WebSecurityConfig's hasIpAddress
+        return "REST-Converter https://github.com/ZUGFeRD/REST-Converter is licensed under the EUPL by \"usegroup\" and uses Spring boot under Apache License and https://github.com/AgID/EeISI-mapper/ under the EUPL";// the idea is to use this value in WebSecurityConfig's hasIpAddress
     }
 
     private void logRequestInfo(HttpServletRequest req) {

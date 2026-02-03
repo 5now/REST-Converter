@@ -33,6 +33,27 @@ public class MustangController {
   @Value("${mustang.additionalLog}")
   protected String additionalLog;
 
+    protected EigorApi api;
+
+
+    @PostConstruct
+    public void initialize() {
+        try {
+            SLF4JBridgeHandler.removeHandlersForRootLogger();
+            SLF4JBridgeHandler.install();
+
+            api =
+                    new EigorApiBuilder()
+                            .enableForce()
+                            .build(); // or new EigorApiBuilder().withCustomConfiguration().build();
+
+        } catch (ConfigurationException e) {
+            LOGGER.error(e.getMessage(), e);
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
   @Operation(
       summary = "Returns the transformation from UBL to CII.",
       responses = {
@@ -51,10 +72,6 @@ public class MustangController {
     LOGGER.info("Operation: eigor;User: " + username + ";" + additionalLog);
     ConversionResult<byte[]> cr = null;
 
-    EigorApi api =
-        new EigorApiBuilder()
-            .enableForce()
-            .build(); // or new EigorApiBuilder().withCustomConfiguration().build();
     try {
 
       if ((!sourceFormat.toLowerCase().equals("cii")&&!sourceFormat.toLowerCase().equals("ubl")&&!sourceFormat.toLowerCase().equals("fatturapa"))) {

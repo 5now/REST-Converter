@@ -43,4 +43,6 @@
         <appender-ref ref="Console" />
     </logger>
 
+    <logger name="org.apache.tomcat.util.net.NioEndpoint" level="WARN" additivity="false"/>
+    <logger name="org.apache.tomcat.util.net.NioEndpoint$Poller" level="WARN" additivity="false"/>
 </configuration>

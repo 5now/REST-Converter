@@ -34,7 +34,7 @@ public class VersionControllerTest {
     @Test
     @DisplayName("Test /notice endpoint")
     public void testNotice() throws Exception {
-        String expectedResponse = "REST-Converter is EUPL by \"usegroup\" and uses Spring boot under Apache License and https://github.com/AgID/EeISI-mapper/ under the EUPL";
+        String expectedResponse = "REST-Converter https://github.com/ZUGFeRD/REST-Converter is licensed under the EUPL by \"usegroup\" and uses Spring boot under Apache License and https://github.com/AgID/EeISI-mapper/ under the EUPL";
 
         mockMvc.perform(MockMvcRequestBuilders.get("/mustang/notice")
                         .header("USERNAME", "testuser"))

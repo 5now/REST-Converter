@@ -12,6 +12,7 @@ import java.io.*;
 import java.util.Locale;
 
 import it.infocert.eigor.api.configuration.ConfigurationException;
+import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mustangproject.server.error.entity.ApiErrorResponse;
@@ -39,9 +40,6 @@ public class MustangController {
     @PostConstruct
     public void initialize() {
         try {
-            SLF4JBridgeHandler.removeHandlersForRootLogger();
-            SLF4JBridgeHandler.install();
-
             api =
                     new EigorApiBuilder()
                             .enableForce()

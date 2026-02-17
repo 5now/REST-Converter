@@ -5,8 +5,8 @@
   Module:            xsd/common/UBL-CommonBasicComponents-2.1.xsd
   Generated on:      2013-02-23 13:10z
 -->
-<xsd:schema xmlns:qdt="urn:oasis:names:specification:ubl:schema:xsd:QualifiedDataTypes-2"
-            xmlns="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+<xsd:schema xmlns="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+            xmlns:qdt="urn:oasis:names:specification:ubl:schema:xsd:QualifiedDataTypes-2"
             xmlns:udt="urn:oasis:names:specification:ubl:schema:xsd:UnqualifiedDataTypes-2"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             targetNamespace="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"

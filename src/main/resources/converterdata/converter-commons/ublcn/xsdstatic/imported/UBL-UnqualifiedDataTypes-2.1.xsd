@@ -44,9 +44,9 @@
   with their supplementary components.
 -->
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-xmlns:ccts="urn:un:unece:uncefact:documentation:2"
+targetNamespace="urn:oasis:names:specification:ubl:schema:xsd:UnqualifiedDataTypes-2" 
 xmlns:ccts-cct="urn:un:unece:uncefact:data:specification:CoreComponentTypeSchemaModule:2"
-            targetNamespace="urn:oasis:names:specification:ubl:schema:xsd:UnqualifiedDataTypes-2"
+            xmlns:ccts="urn:un:unece:uncefact:documentation:2" 
             elementFormDefault="qualified" 
             attributeFormDefault="unqualified"
             version="2.1">

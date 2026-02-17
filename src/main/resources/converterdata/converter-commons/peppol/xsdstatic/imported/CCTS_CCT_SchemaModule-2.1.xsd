@@ -35,10 +35,10 @@
    NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR
    FITNESS FOR A PARTICULAR PURPOSE.
 -->
-<xsd:schema xmlns:ccts="urn:un:unece:uncefact:documentation:2"
-xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+<xsd:schema targetNamespace="urn:un:unece:uncefact:data:specification:CoreComponentTypeSchemaModule:2"
+xmlns:ccts="urn:un:unece:uncefact:documentation:2"
 xmlns:cct="urn:un:unece:uncefact:data:specification:CoreComponentTypeSchemaModule:2"
-targetNamespace="urn:un:unece:uncefact:data:specification:CoreComponentTypeSchemaModule:2" elementFormDefault="qualified" attributeFormDefault="unqualified">
+xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
    <!-- ===== Type Definitions ===== -->
    <!-- =================================================================== -->
    <!-- ===== CCT: AmountType ===== -->

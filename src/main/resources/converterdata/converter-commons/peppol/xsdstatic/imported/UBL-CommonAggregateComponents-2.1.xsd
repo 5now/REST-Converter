@@ -5,8 +5,8 @@
   Module:            xsd/common/UBL-CommonAggregateComponents-2.1.xsd
   Generated on:      2013-02-23 13:10z
 -->
-<xsd:schema xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
-            xmlns="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+<xsd:schema xmlns="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+            xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
             xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns:ccts="urn:un:unece:uncefact:documentation:2"

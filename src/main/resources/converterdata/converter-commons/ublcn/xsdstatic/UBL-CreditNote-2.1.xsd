@@ -7,8 +7,8 @@
   Generated on:      2013-10-31 17:17z
   Copyright (c) OASIS Open 2013. All Rights Reserved.
 -->
-<xsd:schema xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
-            xmlns="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2"
+<xsd:schema xmlns="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2"
+            xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
             xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
             xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"

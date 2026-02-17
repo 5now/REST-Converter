@@ -1,10 +1,10 @@
 ﻿    <!-- Library: OASIS Universal Business Language (UBL) 2.1 PRD3 http://docs.oasis-open.org/ubl/prd3-UBL-2.1/
 	Module: xsd/maindoc/UBL-Invoice-2.1.xsd Generated on: 2013-02-23 13:10z -->
-<xsd:schema xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
-            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+<xsd:schema xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+            xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
             xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
             xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"
-            xmlns:ccts="urn:un:unece:uncefact:documentation:2" xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ccts="urn:un:unece:uncefact:documentation:2"
             targetNamespace="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
             elementFormDefault="qualified" attributeFormDefault="unqualified"
             version="2.1">

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import it.infocert.eigor.api.*;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Locale;
 
 import it.infocert.eigor.api.configuration.ConfigurationException;
@@ -36,11 +37,11 @@ public class MustangController {
     protected String additionalLog;
 
     @Operation(
-            summary = "Returns the transformation from UBL to CII.",
+            summary = "Returns the transformation from one format to another.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Returns the transformation from UBL to CII.",
+                            description = "Returns the transformation from one format to another.",
                             useReturnTypeSchema = true),
                     @ApiResponse(
                             responseCode = "400",
@@ -48,21 +49,22 @@ public class MustangController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
             })
     @RequestMapping(value = "/eigor", method = RequestMethod.POST, consumes = MediaType.APPLICATION_XML_VALUE)
-    public @ResponseBody HttpEntity<String> eigor(@RequestParam("sourceFormat") @Parameter(example = "ubl") String sourceFormat, @RequestParam("destFormat") @Parameter(example = "cii") String destFormat, @RequestBody @Parameter String xml, @RequestHeader(value = "USERNAME", required = false) String username)
+    public @ResponseBody HttpEntity<String> eigor(@RequestParam("sourceFormat") @Parameter(example = "ubl",description = "like in destFormat: ubl, cii, fatturapa or xmlcen") String sourceFormat,
+                                                  @RequestParam("destFormat") @Parameter(example = "cii") String destFormat,
+                                                  @RequestBody @Parameter String xml,
+                                                  @RequestHeader(value = "USERNAME", required = false) String username)
             throws IOException, ConfigurationException, SecurityException {
         LOGGER.info("Operation: eigor;User: " + username + ";" + additionalLog);
         ConversionResult<byte[]> cr = null;
 
-        if ((!sourceFormat.toLowerCase().equals("cii") && !sourceFormat.toLowerCase().equals("ubl") && !sourceFormat.toLowerCase().equals("fatturapa"))) {
-            throw new IllegalArgumentException("source format must be cii, ubl or fatturapa");
-        }
-
-        if ((!destFormat.toLowerCase().equals("cii") && !destFormat.toLowerCase().equals("ubl") && !destFormat.toLowerCase().equals("fatturapa"))) {
-            throw new IllegalArgumentException("destination format must be cii, ubl or fatturapa");
+        String  [] allowedFormats={"cii", "ubl", "fatturapa", "xmlcen"};
+        if (!Arrays.asList(allowedFormats).contains(sourceFormat.toLowerCase()) || !Arrays.asList(allowedFormats).contains(destFormat.toLowerCase())) {
+            throw new IllegalArgumentException("format must be cii, ubl, xmlcen or fatturapa");
         }
 
 
         try {
+
             EigorApi api =
                     new EigorApiBuilder()
                             .enableForce()

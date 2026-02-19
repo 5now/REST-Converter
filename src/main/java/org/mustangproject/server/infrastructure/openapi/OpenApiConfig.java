@@ -45,7 +45,7 @@ public class OpenApiConfig {
             .externalDocs(
                 new ExternalDocumentation()
                     .description("Mustangserver Documentation")
-                    .url("https://www.mustangproject.org/files/manual-1.7.0.pdf"));
+                    .url("https://www.mustangproject.org/files/manual-1.8.1.pdf"));
     if ((serverUrl != null) && (!serverUrl.isEmpty())) {
       oa.addServersItem(new Server().url(serverUrl));
     }

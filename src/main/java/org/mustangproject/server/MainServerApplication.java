@@ -28,6 +28,8 @@ public class MainServerApplication {
 	@Bean
 	ApplicationRunner applicationRunner(Environment environment) {
 //		System.getenv().forEach((key, value) -> System.out.println(key + ": " + value));
+//		environment.setProperty("eigor.eigor.validation-home",System.getProperty("user.dir")); too late
+
 		return args ->
 				LOGGER.info(
 						"Application Properties env:{} ",

@@ -25,12 +25,12 @@ permissions:
 
 env:
   MAVEN_CLI_OPTS: "-f pom.xml -s maven/setting_ci.xml --batch-mode --errors --fail-at-end --show-version"
-  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository -DCI_JOB_TOKEN=${{ secrets.CI_JOB_TOKEN }}"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   DOMAIN: martin.usegroup.de
   DOCKER_ENV_FILE: ./docker/.env
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  CI_JOB_TOKEN: ${{ secrets.CI_JOB_TOKEN }}
+  GITLAB_PACKAGE_TOKEN: ${{ secrets.GITLAB_PACKAGE_TOKEN }}
 
 jobs:
   init:

@@ -3,117 +3,365 @@ name: CI
 on:
   push:
     branches:
+      - master
       - main
       - rc-*
       - release-*
   pull_request:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: Deploy per SSH after a successful build
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: read
+  packages: write
 
 env:
-  MAVEN_CLI_OPTS: "-f pom.xml -s maven/setting_ci.xml --batch-mode"
-  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  MAVEN_CLI_OPTS: "-f pom.xml -s maven/setting_ci.xml --batch-mode --errors --fail-at-end --show-version"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository -DCI_JOB_TOKEN=${{ secrets.CI_JOB_TOKEN }}"
   DOMAIN: martin.usegroup.de
   DOCKER_ENV_FILE: ./docker/.env
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  CI_JOB_TOKEN: ${{ secrets.CI_JOB_TOKEN }}
 
 jobs:
-
-  setup:
+  init:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Install XML tools
-        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
-
-      - name: Extract version
-        run: |
-          MUSTANG_SERVER_VERSION=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
-          echo "MUSTANG_SERVER_VERSION=$MUSTANG_SERVER_VERSION" >> $GITHUB_ENV
-          echo "MUSTANG_SERVER_VERSION=$MUSTANG_SERVER_VERSION" > docker.env
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: docker-env
-          path: docker.env
-
-
-  build:
-    needs: setup
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Java
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
-          cache: maven
 
-      - name: Compile
-        run: mvn $MAVEN_CLI_OPTS -DskipTests compile
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: maven-${{ runner.os }}-${{ github.ref_name }}-${{ hashFiles('pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-${{ github.ref_name }}-
+            maven-${{ runner.os }}-
 
+      - name: Maven clean
+        run: mvn $MAVEN_CLI_OPTS clean
+
+  setup:
+    needs: init
+    runs-on: ubuntu-latest
+    outputs:
+      mustang-server-version: ${{ steps.version.outputs.mustang-server-version }}
+      image-name: ${{ steps.refs.outputs.image-name }}
+      image-tag: ${{ steps.refs.outputs.image-tag }}
+      ref-slug: ${{ steps.refs.outputs.ref-slug }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XML tools
+        run: sudo apt-get update -y && sudo apt-get install -y libxml2-utils
+
+      - name: Resolve Git ref metadata
+        id: refs
+        run: |
+          REF_SLUG=$(echo "${GITHUB_REF_NAME}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9._-]+/-/g; s/^-+|-+$//g')
+          NORMALIZED_IMAGE_NAME=$(echo "${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_TAG="${REGISTRY}/${NORMALIZED_IMAGE_NAME}:${REF_SLUG}"
+          echo "ref-slug=${REF_SLUG}" >> "$GITHUB_OUTPUT"
+          echo "image-name=${NORMALIZED_IMAGE_NAME}" >> "$GITHUB_OUTPUT"
+          echo "image-tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Extract application version
+        id: version
+        run: |
+          MUSTANG_SERVER_VERSION=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
+          {
+            echo "MUSTANG_SERVER_VERSION=${MUSTANG_SERVER_VERSION}"
+            echo "CI_COMMIT_REF_SLUG=${{ steps.refs.outputs.ref-slug }}"
+          } > "$DOCKER_ENV_FILE"
+          echo "mustang-server-version=${MUSTANG_SERVER_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Setup complete with XML tools and Mustang Server Version ${MUSTANG_SERVER_VERSION}"
+
+      - name: Upload Docker env
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-env
+          path: ${{ env.DOCKER_ENV_FILE }}
+          retention-days: 7
+
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: maven-${{ runner.os }}-${{ github.ref_name }}-${{ hashFiles('pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-${{ github.ref_name }}-
+            maven-${{ runner.os }}-
+
+      - name: Download Docker env
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-env
+          path: docker
+
+      - name: Build package
+        run: mvn $MAVEN_CLI_OPTS -DskipTests package
+
+      - name: Upload Maven package
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven-package
+          path: target/*.jar
+          retention-days: 7
 
   test:
     needs: build
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
-          cache: maven
 
-      - name: Run Tests
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: maven-${{ runner.os }}-${{ github.ref_name }}-${{ hashFiles('pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-${{ github.ref_name }}-
+            maven-${{ runner.os }}-
+
+      - name: Download Docker env
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-env
+          path: docker
+
+      - name: Run tests with JaCoCo
+        run: mvn $MAVEN_CLI_OPTS org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report
+
+      - name: Add coverage summary
+        if: always()
         run: |
-          mvn $MAVEN_CLI_OPTS \
-          clean \
-          org.jacoco:jacoco-maven-plugin:prepare-agent \
-          test \
-          org.jacoco:jacoco-maven-plugin:report
+          if [ -f target/site/jacoco/index.html ]; then
+            COVERAGE=$(grep -o 'Total[^%]*%' target/site/jacoco/index.html || true)
+            echo "${COVERAGE}"
+            echo "### Coverage" >> "$GITHUB_STEP_SUMMARY"
+            echo "\`${COVERAGE}\`" >> "$GITHUB_STEP_SUMMARY"
+          fi
 
-      - name: Upload coverage
+      - name: Upload JaCoCo report
         uses: actions/upload-artifact@v4
         with:
           name: jacoco
           path: target/site/jacoco/jacoco.xml
+          retention-days: 7
 
-
-  docker-build:
-    if: github.ref == 'refs/heads/master'
+  visualize:
     needs: test
     runs-on: ubuntu-latest
-
+    container:
+      image: haynes/jacoco2cobertura:latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - name: Download JaCoCo report
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco
+          path: target/site/jacoco
+
+      - name: Convert JaCoCo to Cobertura
+        run: |
+          mkdir -p target/site
+          python /opt/cover2cover.py target/site/jacoco/jacoco.xml src/main/java > target/site/cobertura.xml
+
+      - name: Upload Cobertura report
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura
+          path: target/site/cobertura.xml
+          retention-days: 7
+
+  release-artifact:
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: maven-${{ runner.os }}-${{ github.ref_name }}-${{ hashFiles('pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-${{ github.ref_name }}-
+            maven-${{ runner.os }}-
+
+      - name: Download Docker env
+        uses: actions/download-artifact@v4
         with:
           name: docker-env
+          path: docker
 
-      - name: Load env
-        run: |
-          export $(cat docker.env | xargs)
+      - name: Deploy Maven artifact
+        run: mvn $MAVEN_CLI_OPTS -DskipTests deploy
 
-      - name: Login registry
+  build-docker-master:
+    needs:
+      - setup
+      - test
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_REPOSITORY: ${{ needs.setup.outputs.image-name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Docker env
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-env
+          path: docker
+
+      - name: Login to container registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build image
-        run: |
-          docker build \
-            -f docker/Dockerfile \
-            --build-arg MUSTANG_SERVER_VERSION=$MUSTANG_SERVER_VERSION \
-            -t ghcr.io/${{ github.repository }}:latest .
+      - name: Pull latest image
+        continue-on-error: true
+        run: docker pull "$REGISTRY/$IMAGE_REPOSITORY:latest"
 
-      - name: Push image
+      - name: Build Docker image
         run: |
-          docker push ghcr.io/${{ github.repository }}:latest
-          
+          set -a
+          . "$DOCKER_ENV_FILE"
+          set +a
+          docker build -f ./docker/Dockerfile --tag "$REGISTRY/$IMAGE_REPOSITORY:latest" --build-arg "MUSTANG_SERVER_VERSION=$MUSTANG_SERVER_VERSION" .
+
+      - name: Push Docker image
+        run: docker push "$REGISTRY/$IMAGE_REPOSITORY:latest"
+
+  build-docker-rc:
+    needs:
+      - setup
+      - test
+    if: startsWith(github.ref_name, 'release-') || startsWith(github.ref_name, 'rc-')
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_REPOSITORY: ${{ needs.setup.outputs.image-name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Docker env
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-env
+          path: docker
+
+      - name: Login to container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull latest image
+        continue-on-error: true
+        run: docker pull "$REGISTRY/$IMAGE_REPOSITORY:latest"
+
+      - name: Build Docker image
+        run: |
+          set -a
+          . "$DOCKER_ENV_FILE"
+          set +a
+          TAG_VERSION=$(echo "${GITHUB_REF_NAME}" | sed 's/^rc-//')
+          docker build -f ./docker/Dockerfile --tag "$REGISTRY/$IMAGE_REPOSITORY:$TAG_VERSION" --build-arg "MUSTANG_SERVER_VERSION=$MUSTANG_SERVER_VERSION" .
+
+      - name: Push Docker image
+        run: |
+          TAG_VERSION=$(echo "${GITHUB_REF_NAME}" | sed 's/^rc-//')
+          docker push "$REGISTRY/$IMAGE_REPOSITORY:$TAG_VERSION"
+
+  deploy-ssh:
+    needs:
+      - setup
+      - release-artifact
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Docker env
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-env
+          path: docker
+
+      - name: Start ssh-agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add host key
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan "$DOMAIN" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Deploy over SSH
+        env:
+          SSH_USER: ${{ secrets.USER_KEY }}
+          CI_COMMIT_REF_SLUG: ${{ needs.setup.outputs.ref-slug }}
+          MUSTANG_SERVER_VERSION: ${{ needs.setup.outputs.mustang-server-version }}
+        run: |
+          scp -r ./docker "$SSH_USER@$DOMAIN:/DevOp/mustang"
+          ssh "$SSH_USER@$DOMAIN" "cd /DevOp/mustang/docker ; sed -i 's/^CI_COMMIT_REF_SLUG=.*/CI_COMMIT_REF_SLUG=$CI_COMMIT_REF_SLUG/' .env"
+          ssh "$SSH_USER@$DOMAIN" "cd /DevOp/mustang/docker ; sed -i 's/^MUSTANG_SERVER_VERSION=.*/MUSTANG_SERVER_VERSION=$MUSTANG_SERVER_VERSION/' .env"
+          ssh "$SSH_USER@$DOMAIN" "cd /DevOp/mustang ; docker-compose -f ./docker/docker-compose-ci.local.yml up -d --build --force-recreate"

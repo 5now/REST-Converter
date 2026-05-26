@@ -30,6 +30,7 @@ env:
   DOCKER_ENV_FILE: ./docker/.env
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  GITLAB_PACKAGE_TOKEN_HEADER: ${{ secrets.GITLAB_PACKAGE_TOKEN_HEADER || 'Private-Token' }}
   GITLAB_PACKAGE_TOKEN: ${{ secrets.GITLAB_PACKAGE_TOKEN }}
 
 jobs:
@@ -44,6 +45,13 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+
+      - name: Verify GitLab package token
+        run: |
+          if [ -z "$GITLAB_PACKAGE_TOKEN" ]; then
+            echo "::error::GitHub secret GITLAB_PACKAGE_TOKEN is empty or not available to this workflow run."
+            exit 1
+          fi
 
       - name: Cache Maven repository
         uses: actions/cache@v4
@@ -114,6 +122,13 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Verify GitLab package token
+        run: |
+          if [ -z "$GITLAB_PACKAGE_TOKEN" ]; then
+            echo "::error::GitHub secret GITLAB_PACKAGE_TOKEN is empty or not available to this workflow run."
+            exit 1
+          fi
+
       - name: Cache Maven repository
         uses: actions/cache@v4
         with:
@@ -151,6 +166,13 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+
+      - name: Verify GitLab package token
+        run: |
+          if [ -z "$GITLAB_PACKAGE_TOKEN" ]; then
+            echo "::error::GitHub secret GITLAB_PACKAGE_TOKEN is empty or not available to this workflow run."
+            exit 1
+          fi
 
       - name: Cache Maven repository
         uses: actions/cache@v4
@@ -227,6 +249,13 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+
+      - name: Verify GitLab package token
+        run: |
+          if [ -z "$GITLAB_PACKAGE_TOKEN" ]; then
+            echo "::error::GitHub secret GITLAB_PACKAGE_TOKEN is empty or not available to this workflow run."
+            exit 1
+          fi
 
       - name: Cache Maven repository
         uses: actions/cache@v4

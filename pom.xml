@@ -120,19 +120,5 @@
             <id>central</id>
             <url>https://repo.maven.apache.org/maven2</url>
         </repository>
-        <repository>
-            <id>gitlab-maven</id>
-            <url>https://dev.usegroup.de/api/v4/projects/139/packages/maven</url>
-        </repository>
     </repositories>
-    <distributionManagement>
-        <repository>
-            <id>gitlab-maven</id>
-            <url>https://dev.usegroup.de/api/v4/projects/139/packages/maven</url>
-        </repository>
-        <snapshotRepository>
-            <id>gitlab-maven</id>
-            <url>https://dev.usegroup.de/api/v4/projects/139/packages/maven</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>

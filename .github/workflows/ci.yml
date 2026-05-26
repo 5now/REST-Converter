@@ -236,45 +236,6 @@ jobs:
           path: target/site/cobertura.xml
           retention-days: 7
 
-  release-artifact:
-    needs: test
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Verify GitLab package token
-        run: |
-          if [ -z "$GITLAB_PACKAGE_TOKEN" ]; then
-            echo "::error::GitHub secret GITLAB_PACKAGE_TOKEN is empty or not available to this workflow run."
-            exit 1
-          fi
-
-      - name: Cache Maven repository
-        uses: actions/cache@v4
-        with:
-          path: .m2/repository
-          key: maven-${{ runner.os }}-${{ github.ref_name }}-${{ hashFiles('pom.xml') }}
-          restore-keys: |
-            maven-${{ runner.os }}-${{ github.ref_name }}-
-            maven-${{ runner.os }}-
-
-      - name: Download Docker env
-        uses: actions/download-artifact@v4
-        with:
-          name: docker-env
-          path: docker
-
-      - name: Deploy Maven artifact
-        run: mvn $MAVEN_CLI_OPTS -DskipTests deploy
-
   build-docker-master:
     needs:
       - setup
@@ -359,7 +320,7 @@ jobs:
   deploy-ssh:
     needs:
       - setup
-      - release-artifact
+      - test
     if: github.event_name == 'workflow_dispatch' && inputs.deploy == 'true'
     runs-on: ubuntu-latest
     environment: production

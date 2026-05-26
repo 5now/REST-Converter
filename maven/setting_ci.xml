@@ -142,17 +142,6 @@ under the License.
         </httpHeaders>
       </configuration>
     </server>
-    <server>
-      <id>gitlab-maven</id>
-      <configuration>
-        <httpHeaders>
-          <property>
-            <name>${env.GITLAB_PACKAGE_TOKEN_HEADER}</name>
-            <value>${env.GITLAB_PACKAGE_TOKEN}</value>
-          </property>
-        </httpHeaders>
-      </configuration>
-    </server>
   </servers>
 
   <!-- mirrors

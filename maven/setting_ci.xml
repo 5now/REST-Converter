@@ -136,7 +136,7 @@ under the License.
       <configuration>
         <httpHeaders>
           <property>
-            <name>Private-Token</name>
+            <name>${env.GITLAB_PACKAGE_TOKEN_HEADER}</name>
             <value>${env.GITLAB_PACKAGE_TOKEN}</value>
           </property>
         </httpHeaders>
@@ -147,7 +147,7 @@ under the License.
       <configuration>
         <httpHeaders>
           <property>
-            <name>Private-Token</name>
+            <name>${env.GITLAB_PACKAGE_TOKEN_HEADER}</name>
             <value>${env.GITLAB_PACKAGE_TOKEN}</value>
           </property>
         </httpHeaders>
